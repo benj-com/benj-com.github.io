@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python 入門筆記 · 465期</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f8f7f4;
+  --surface: #ffffff;
+  --surface2: #f2f1ee;
+  --border: #e8e6e0;
+  --border2: #d4d0c8;
+  --text: #1e1c18;
+  --text2: #5a5750;
+  --text3: #9a9690;
+  --accent: #2a6049;
+  --accent-bg: #edf4f0;
+  --accent-light: #c8dfd5;
+  --mono: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+  --sans: "Hiragino Sans", "Noto Sans TC", "PingFang TC", sans-serif;
+  --r: 6px;
+  --rl: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141412;
+    --surface: #1e1c18;
+    --surface2: #252320;
+    --border: #2e2c28;
+    --border2: #3e3c38;
+    --text: #ede9e0;
+    --text2: #a09c94;
+    --text3: #686460;
+    --accent: #5a9e82;
+    --accent-bg: #1a2820;
+    --accent-light: #2a4038;
+  }
+}
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* layout */
+.layout { display: flex; min-height: 100vh; }
+
+/* sidebar */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 1.5rem 0;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  overflow-y: auto;
+  z-index: 10;
+}
+.sidebar-header {
+  padding: 0 1.25rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.75rem;
+}
+.sidebar-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+.sidebar-sub {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 2px;
+}
+.progress-bar {
+  margin-top: 10px;
+  height: 3px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  width: 80%;
+  background: var(--accent);
+  border-radius: 99px;
+}
+.progress-label {
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 4px;
+}
+
+.nav-group { margin-bottom: 0.25rem; }
+.nav-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 6px 1.25rem;
+  font-size: 13px;
+  color: var(--text2);
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: all 0.12s;
+  font-family: var(--sans);
+}
+.nav-item:hover { color: var(--text); background: var(--surface2); }
+.nav-item.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-bg); font-weight: 500; }
+
+/* main */
+.main {
+  margin-left: 220px;
+  flex: 1;
+  padding: 2.5rem 2rem 4rem;
+  max-width: 820px;
+}
+
+/* mobile toggle */
+.menu-btn {
+  display: none;
+  position: fixed;
+  top: 12px; left: 12px;
+  z-index: 100;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  width: 36px; height: 36px;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--text2);
+}
+@media (max-width: 680px) {
+  .menu-btn { display: flex; align-items: center; justify-content: center; }
+  .sidebar { transform: translateX(-100%); transition: transform 0.2s; }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; padding: 1.25rem 1rem 3rem; }
+}
+
+/* panel */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* section */
+.section-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 1.75rem 0 0.6rem;
+}
+.section-label:first-child { margin-top: 0; }
+
+h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* card */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--rl);
+  padding: 1rem 1.1rem;
+  margin-bottom: 0.6rem;
+}
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+.card-body {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+}
+
+/* two-col */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+@media (max-width: 560px) { .two-col { grid-template-columns: 1fr; } }
+
+/* code */
+pre {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 0.8rem 1rem;
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--text);
+  overflow-x: auto;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0.5rem 0;
+}
+code {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--text);
+}
+
+/* table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin: 0.5rem 0;
+}
+th {
+  text-align: left;
+  padding: 7px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text2);
+  vertical-align: top;
+}
+tr:last-child td { border-bottom: none; }
+td code { font-size: 11px; }
+
+/* note */
+.note {
+  font-size: 12px;
+  color: var(--text3);
+  border-left: 2px solid var(--border2);
+  padding: 0.3rem 0.75rem;
+  margin: 0.5rem 0;
+}
+.tip {
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-light);
+  border-radius: var(--r);
+  padding: 0.6rem 0.85rem;
+  font-size: 12.5px;
+  color: var(--accent);
+  margin: 0.5rem 0;
+}
+
+/* badge */
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  margin: 2px 3px 2px 0;
+  font-family: var(--mono);
+}
+
+/* row */
+.row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.row:last-child { border-bottom: none; }
+.row-key {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 1px 6px;
+  border-radius: 4px;
+  min-width: 90px;
+  flex-shrink: 0;
+  color: var(--text);
+}
+.row-desc { color: var(--text2); flex: 1; }
+.row-eg { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+
+/* checklist */
+.check { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 5px; font-size: 13px; color: var(--text2); }
+.check-icon { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+.ok { background: #d4edda; color: #2a6049; }
+.no { background: #fde8e8; color: #b42a2a; }
+
+footer { margin-top: 3rem; font-size: 11px; color: var(--text3); }
+
+/* lock screen */
+#lock {
+  position: fixed; inset: 0; z-index: 999;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+}
+.lock-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 2.5rem 2rem;
+  width: 100%; max-width: 300px;
+  text-align: center;
+}
+.lock-icon { font-size: 28px; margin-bottom: 0.75rem; }
+.lock-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 0.25rem; }
+.lock-sub { font-size: 12px; color: var(--text3); margin-bottom: 1.25rem; }
+#pwd-input {
+  width: 100%; padding: 9px 12px; font-size: 14px;
+  background: var(--surface2); color: var(--text);
+  border: 1px solid var(--border2); border-radius: var(--r);
+  outline: none; margin-bottom: 0.6rem;
+  font-family: var(--sans);
+  transition: border-color 0.15s;
+}
+#pwd-input:focus { border-color: var(--accent); }
+#pwd-btn {
+  width: 100%; padding: 9px; font-size: 13px; font-weight: 600;
+  background: var(--accent); color: #fff; border: none; border-radius: var(--r);
+  cursor: pointer; font-family: var(--sans);
+  transition: opacity 0.15s;
+}
+#pwd-btn:hover { opacity: 0.85; }
+#pwd-err { font-size: 11px; color: #b42a2a; margin-top: 0.6rem; min-height: 16px; }
+</style>
+</head>
+<body>
+
+<!-- Lock -->
+<div id="lock">
+  <div class="lock-box">
+    <div class="lock-icon">🔒</div>
+    <div class="lock-title">Python 465 筆記</div>
+    <div class="lock-sub">請輸入密碼</div>
+    <input id="pwd-input" type="password" placeholder="密碼" autofocus onkeydown="if(event.key==='Enter')auth()">
+    <button id="pwd-btn" onclick="auth()">進入</button>
+    <div id="pwd-err"></div>
+  </div>
+</div>
+
+<button class="menu-btn" onclick="toggleSidebar()">☰</button>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">Python 入門筆記</div>
+      <div class="sidebar-sub">465期 · Candy 老師</div>
+      <div class="progress-bar"><div class="progress-fill"></div></div>
+      <div class="progress-label">8 / 10 堂完成</div>
+    </div>
+    <button class="nav-item active" onclick="show('overview',this)">課程總覽</button>
+    <button class="nav-item" onclick="show('vars',this)">變數與型別</button>
+    <button class="nav-item" onclick="show('ops',this)">運算子</button>
+    <button class="nav-item" onclick="show('strings',this)">字串</button>
+    <button class="nav-item" onclick="show('control',this)">流程控制</button>
+    <button class="nav-item" onclick="show('loops',this)">迴圈</button>
+    <button class="nav-item" onclick="show('containers',this)">容器</button>
+    <button class="nav-item" onclick="show('functions',this)">函式</button>
+    <button class="nav-item" onclick="show('oop',this)">物件導向</button>
+    <button class="nav-item" onclick="show('errors',this)">錯誤處理</button>
+    <button class="nav-item" onclick="show('modules',this)">模組與專案</button>
+  </nav>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- 課程總覽 -->
+    <div id="overview" class="panel active">
+      <h2>課程總覽</h2>
+      <div class="card">
+        <table>
+          <tr><th>堂次</th><th>主題</th><th>狀態</th></tr>
+          <tr><td>1–2</td><td>基礎環境、變數與運算</td><td style="color:var(--accent)">✓ 完成</td></tr>
+          <tr><td>3–4</td><td>字串、流程控制、迴圈</td><td style="color:var(--accent)">✓ 完成</td></tr>
+          <tr><td>5–6</td><td>容器（list / dict / set）</td><td style="color:var(--accent)">✓ 完成</td></tr>
+          <tr><td>6–7</td><td>函式、物件導向、錯誤處理</td><td style="color:var(--accent)">✓ 完成</td></tr>
+          <tr><td>8</td><td>模組、import、專案管理</td><td style="color:var(--accent)">✓ 完成</td></tr>
+          <tr><td>9</td><td>檔案處理、PyQt5 GUI</td><td style="color:var(--text3)">即將上課</td></tr>
+          <tr><td>10</td><td>串接 LLM API、期末作業</td><td style="color:var(--text3)">即將上課</td></tr>
+        </table>
+      </div>
+      <div class="section-label">評分標準</div>
+      <div class="card">
+        <table>
+          <tr><th>項目</th><th>佔比</th></tr>
+          <tr><td>出席</td><td>10%</td></tr>
+          <tr><td>課堂練習 + 作業</td><td>50%</td></tr>
+          <tr><td>期末作業</td><td>40%</td></tr>
+        </table>
+        <div class="note" style="margin-top:0.6rem">70% 以上才有結業證書</div>
+      </div>
+      <div class="section-label">常用指令</div>
+      <div class="card">
+        <pre>uv run python        # 互動模式
+uv run hello.py      # 執行檔案
+Ctrl + C             # 強制中斷
+Cmd/Ctrl + /         # 快速註解</pre>
+      </div>
+    </div>
+
+    <!-- 變數與型別 -->
+    <div id="vars" class="panel">
+      <h2>變數與型別</h2>
+      <div class="section-label">資料型別</div>
+      <div class="card">
+        <div class="row"><span class="row-key">int</span><span class="row-desc">整數</span><span class="row-eg">5, -3, 0</span></div>
+        <div class="row"><span class="row-key">float</span><span class="row-desc">浮點數</span><span class="row-eg">3.14, -0.5</span></div>
+        <div class="row"><span class="row-key">str</span><span class="row-desc">字串</span><span class="row-eg">"hello"</span></div>
+        <div class="row"><span class="row-key">bool</span><span class="row-desc">布林</span><span class="row-eg">True / False</span></div>
+        <div class="row"><span class="row-key">NoneType</span><span class="row-desc">空值，用 None 表示</span><span class="row-eg">None</span></div>
+      </div>
+      <div class="section-label">宣告與命名</div>
+      <div class="card">
+        <pre>pi = 3.14
+name = "Candy"
+a = b = c = 0        # 多變數同值
+x, y, z = 1, 2, 3   # 多變數多值</pre>
+        <div class="note">命名：snake_case、不可數字開頭、不可用保留字、區分大小寫</div>
+      </div>
+      <div class="section-label">型別轉換</div>
+      <div class="card">
+        <pre>int("42")      # 42
+float("3.14")  # 3.14
+str(100)       # "100"
+bool(0)        # False
+type(x)        # 查型別</pre>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：數字相加器</div>
+        <pre># ❌ 錯誤：input 回傳 str，str + str 是串接
+num1 = input("第一個數字：")   # "3"
+num2 = input("第二個數字：")   # "5"
+print(num1 + num2)             # "35"（不是 8！）
+
+# ✅ 正確：先轉成 int 再相加
+num1 = int(input("第一個數字："))  # 3
+num2 = int(input("第二個數字："))  # 5
+print(num1 + num2)                 # 8</pre>
+      </div>
+      <div class="section-label">F-String</div>
+      <div class="card">
+        <pre>name = "Ben"
+print(f"我叫 {name}")
+print(f"2 + 3 = {2 + 3}")  # {} 內可放運算式</pre>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：購物結帳單</div>
+        <pre>item = "珍珠奶茶"
+price = 65
+qty = 3
+total = price * qty
+print(f"商品：{item}")
+print(f"單價：{price} 元 × {qty} 杯")
+print(f"合計：{total} 元")
+# 商品：珍珠奶茶
+# 單價：65 元 × 3 杯
+# 合計：195 元</pre>
+      </div>
+      <div class="section-label">input 輸入</div>
+      <div class="card">
+        <pre>name = input("你的名字？")         # 回傳 str
+age  = int(input("你的年齡？"))    # 記得轉型別</pre>
+        <div class="tip">input() 收到的一律是字串，需要數字時要手動 int() 轉換</div>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：狗狗年齡換算</div>
+        <pre>human_age = int(input("請輸入你的年齡："))
+dog_age = human_age * 7
+print(f"你的狗狗年齡相當於人類的 {dog_age} 歲")</pre>
+      </div>
+      <div class="section-label">動態型別 & None</div>
+      <div class="card">
+        <pre>x = 5       # int
+x = "five"  # 可以直接換型別（動態型別）
+
+age = None  # 比 0 更能表達「尚未填入」</pre>
+      </div>
+    </div>
+
+    <!-- 運算子 -->
+    <div id="ops" class="panel">
+      <h2>運算子</h2>
+      <div class="section-label">算術</div>
+      <div class="card">
+        <div class="row"><span class="row-key">+ - * /</span><span class="row-desc">加減乘除</span><span class="row-eg">/ 結果為 float</span></div>
+        <div class="row"><span class="row-key">**</span><span class="row-desc">次方</span><span class="row-eg">2**3 = 8</span></div>
+        <div class="row"><span class="row-key">%</span><span class="row-desc">取餘數</span><span class="row-eg">10%3 = 1</span></div>
+        <div class="row"><span class="row-key">//</span><span class="row-desc">整除（取商）</span><span class="row-eg">10//3 = 3</span></div>
+      </div>
+      <div class="section-label">比較（回傳 bool）</div>
+      <div class="card">
+        <div class="row"><span class="row-key">== !=</span><span class="row-desc">相等 / 不相等</span><span class="row-eg">= 是賦值，別搞混</span></div>
+        <div class="row"><span class="row-key">&lt; &gt; &lt;= &gt;=</span><span class="row-desc">大小比較</span></div>
+      </div>
+      <div class="section-label">邏輯</div>
+      <div class="card">
+        <div class="row"><span class="row-key">and</span><span class="row-desc">兩者皆真才為真</span><span class="row-eg">True and False → False</span></div>
+        <div class="row"><span class="row-key">or</span><span class="row-desc">其一為真則為真</span><span class="row-eg">True or False → True</span></div>
+        <div class="row"><span class="row-key">not</span><span class="row-desc">反轉</span><span class="row-eg">not True → False</span></div>
+      </div>
+      <div class="section-label">組合賦值</div>
+      <div class="card">
+        <pre>x += 5   # x = x + 5
+x -= 1   # x = x - 1
+x *= 3   x /= 2   x **= 2   x //= 3   x %= 3</pre>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：% 判斷奇偶數</div>
+        <pre>n = 7
+if n % 2 == 0:
+    print(f"{n} 是偶數")
+else:
+    print(f"{n} 是奇數")   # 7 是奇數
+
+# % 也可以判斷整除
+if 100 % 3 == 0:
+    print("100 可以被 3 整除")
+else:
+    print("100 不能被 3 整除")  # 這行執行</pre>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：// 換算時間</div>
+        <pre>total_minutes = 137
+hours = total_minutes // 60    # 2（小時）
+minutes = total_minutes % 60   # 17（剩餘分鐘）
+print(f"{total_minutes} 分鐘 = {hours} 小時 {minutes} 分")</pre>
+      </div>
+      <div class="tip">優先順序：括號 → ** → * / % // → + - → 比較 → not → and → or → 賦值</div>
+    </div>
+
+    <!-- 字串 -->
+    <div id="strings" class="panel">
+      <h2>字串</h2>
+      <div class="section-label">引號規則</div>
+      <div class="card">
+        <pre>"Hello"  # ✅ 雙引號
+'Hello'  # ✅ 單引號（開頭結尾要一致）
+print("I'm Candy")      # 內單外雙
+print('他"說"沒問題')   # 內雙外單
+print('I\'m Candy')     # 反斜線跳脫</pre>
+      </div>
+      <div class="section-label">跳脫字元</div>
+      <div class="card">
+        <table>
+          <tr><th>寫法</th><th>意義</th></tr>
+          <tr><td><code>\n</code></td><td>換行</td></tr>
+          <tr><td><code>\'</code></td><td>單引號</td></tr>
+          <tr><td><code>\"</code></td><td>雙引號</td></tr>
+          <tr><td><code>\\</code></td><td>反斜線本身</td></tr>
+        </table>
+      </div>
+      <div class="section-label">多行字串</div>
+      <div class="card">
+        <pre>msg = """
+第一行
+第二行
+"""</pre>
+      </div>
+      <div class="section-label">字串運算</div>
+      <div class="card">
+        <pre>"Hello" + " " + "World"  # 串接
+"*" * 10                  # 重複 10 次
+len("Python")             # 6（長度）</pre>
+      </div>
+      <div class="section-label">常用方法</div>
+      <div class="card">
+        <div class="row"><span class="row-key">.upper()</span><span class="row-desc">全大寫</span></div>
+        <div class="row"><span class="row-key">.lower()</span><span class="row-desc">全小寫</span></div>
+        <div class="row"><span class="row-key">.strip()</span><span class="row-desc">去除頭尾空白</span></div>
+        <div class="row"><span class="row-key">.replace(a,b)</span><span class="row-desc">把 a 換成 b</span></div>
+        <div class="row"><span class="row-key">.split(sep)</span><span class="row-desc">切割成 list</span></div>
+        <div class="row"><span class="row-key">sep.join(list)</span><span class="row-desc">list 黏成字串</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：清洗使用者輸入</div>
+        <pre># 使用者輸入常常有空白、大小寫不一致
+raw = "  Alice  "
+name = raw.strip()        # "Alice"（去除空白）
+name = name.upper()       # "ALICE"（統一大寫比較）
+
+# 替換不要的字元
+phone = "0912-345-678"
+clean = phone.replace("-", "")  # "0912345678"</pre>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：split + join 資料轉換</div>
+        <pre># 輸入格式：CSV 一行資料
+row = "Alice,25,Taipei"
+parts = row.split(",")      # ['Alice', '25', 'Taipei']
+name, age, city = parts     # 解包
+print(f"{name} 住在 {city}，今年 {age} 歲")
+
+# 輸出成另一種格式
+result = " | ".join(parts)  # "Alice | 25 | Taipei"</pre>
+      </div>
+    </div>
+
+    <!-- 流程控制 -->
+    <div id="control" class="panel">
+      <h2>流程控制</h2>
+      <div class="section-label">if / elif / else</div>
+      <div class="card">
+        <pre>if 條件:
+    # 執行
+elif 另一個條件:
+    # 執行
+else:
+    # 都不符合</pre>
+        <div class="note">縮排代表區塊；冒號 : 帶出縮排；區塊內要嘛全執行要嘛不執行</div>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：成績等第</div>
+        <pre>score = int(input("輸入成績："))
+if score >= 90:
+    grade = "A"
+elif score >= 80:
+    grade = "B"
+elif score >= 70:
+    grade = "C"
+elif score >= 60:
+    grade = "D"
+else:
+    grade = "F"
+print(f"成績：{score} → 等第：{grade}")</pre>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：邏輯運算子組合條件</div>
+        <pre>age = 20
+has_id = True
+# and：兩個條件都要成立
+if age >= 18 and has_id:
+    print("可以入場")
+
+# or：其中一個成立就好
+is_member = False
+has_coupon = True
+if is_member or has_coupon:
+    print("享有折扣")
+
+# not：反轉條件
+is_full = False
+if not is_full:
+    print("還有空位")</pre>
+      </div>
+      <div class="section-label">elif vs 多個 if</div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">elif：前面成立就跳過我</div>
+          <pre>if is_raining:
+    print("拿傘")
+elif is_sunny:
+    print("帶帽")  # 不會執行</pre>
+        </div>
+        <div class="card">
+          <div class="card-title">多個 if：每個都判斷</div>
+          <pre>if is_raining:
+    print("拿傘")
+if is_sunny:
+    print("帶帽")  # 也會執行</pre>
+        </div>
+      </div>
+      <div class="tip">空區塊用 <code>pass</code> 或 <code>...</code> 當佔位符</div>
+    </div>
+
+    <!-- 迴圈 -->
+    <div id="loops" class="panel">
+      <h2>迴圈</h2>
+      <div class="section-label">while 迴圈</div>
+      <div class="card">
+        <pre>count = 5
+while count > 0:
+    print(f"倒數：{count}")
+    count -= 1   # 必須讓條件趨近 False！
+print("結束")</pre>
+        <div class="tip">忘記更新條件 → 無限迴圈，用 Ctrl+C 中斷</div>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：猜數字遊戲</div>
+        <pre>answer = 42
+guess = 0
+while guess != answer:
+    guess = int(input("猜一個數字："))
+    if guess < answer:
+        print("太小了！")
+    elif guess > answer:
+        print("太大了！")
+print("答對了！")</pre>
+      </div>
+      <div class="section-label">for 迴圈 + range()</div>
+      <div class="card">
+        <pre>for i in range(5):        # 0,1,2,3,4
+    print(i)
+for i in range(2, 6):     # 2,3,4,5
+    print(i)
+for i in range(1, 9, 2):  # 1,3,5,7（步長 2）
+    print(i)</pre>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：九九乘法表（巢狀迴圈）</div>
+        <pre>for i in range(1, 10):
+    for j in range(1, 10):
+        print(f"{i}×{j}={i*j:2}", end="  ")  # :2 = 數字靠右佔 2 格寬
+    print()  # 換行</pre>
+      </div>
+      <div class="section-label">while vs for</div>
+      <div class="card card-body">
+        次數已知或遍歷清單 → 用 <code>for</code><br>
+        條件式控制、次數未知 → 用 <code>while</code>
+      </div>
+      <div class="section-label">continue / break</div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">continue — 跳過本次</div>
+          <pre>while floor < 5:
+    floor += 1
+    if floor == 4:
+        continue   # 回到 while
+    print(floor)</pre>
+        </div>
+        <div class="card">
+          <div class="card-title">break — 跳出迴圈</div>
+          <pre>while floor < 5:
+    floor += 1
+    if floor == 3:
+        break      # 整個結束
+    print(floor)</pre>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：continue 跳過特定項目</div>
+        <pre># 只印出奇數
+for i in range(1, 11):
+    if i % 2 == 0:
+        continue   # 偶數跳過
+    print(i)       # 印出 1 3 5 7 9</pre>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：break 找到就停</div>
+        <pre>names = ["Alice", "Bob", "Candy", "David"]
+target = "Candy"
+for name in names:
+    if name == target:
+        print(f"找到 {name} 了！")
+        break      # 找到就不用繼續找
+else:
+    # for...else：迴圈跑完「沒有被 break 中斷」才執行 else
+    print("找不到")</pre>
+      </div>
+    </div>
+
+    <!-- 容器 -->
+    <div id="containers" class="panel">
+      <h2>容器</h2>
+      <div class="section-label">list 清單</div>
+      <div class="card">
+        <pre>shop = ["apple", "banana", "candy"]
+shop[0]            # "apple"（index 從 0 開始）
+shop[-1]           # "candy"（倒數第 1）
+len(shop)          # 3
+shop.append("x")   # 新增到最後
+shop[0] = "mango"  # 修改
+
+# Slicing [start:stop:step]
+shop[1:3]    # ['banana', 'candy']
+shop[::-1]   # 反轉
+
+# List Comprehension
+prices = [100, 200, 300]
+new = [p * 0.9 for p in prices]</pre>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：購物車操作</div>
+        <pre>cart = []
+cart.append("珍珠奶茶")
+cart.append("雞排")
+cart.append("薯條")
+
+print(f"購物車共 {len(cart)} 項")
+for i, item in enumerate(cart):
+    print(f"  {i+1}. {item}")
+
+# enumerate() 同時拿到 index 和值
+# 0 → 珍珠奶茶, 1 → 雞排, 2 → 薯條</pre>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：List Comprehension 篩選</div>
+        <pre>scores = [88, 45, 72, 91, 60, 55, 83]
+
+# 只留下及格的分數（>= 60）
+passed = [s for s in scores if s >= 60]
+# [88, 72, 91, 60, 83]
+
+# 計算平均
+avg = sum(passed) / len(passed)
+print(f"及格人數：{len(passed)}，平均：{avg:.1f}")</pre>
+      </div>
+      <div class="section-label">dict 字典</div>
+      <div class="card">
+        <pre>d = {"apple": "蘋果", "banana": "香蕉"}
+d["apple"]              # 蘋果（不存在 → KeyError）
+d.get("bread")          # None（不存在不報錯）
+d.get("bread", "麵包")  # 麵包（預設值）
+d["orange"] = "柳橙"    # 新增
+d["apple"] = "艾波"     # 修改
+del d["banana"]         # 刪除
+
+for key in d:
+    print(key)
+for val in d.values():
+    print(val)
+for k, v in d.items():
+    print(k, v)</pre>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：飲料訂單統計</div>
+        <pre>orders = ["珍奶", "綠茶", "珍奶", "紅茶", "珍奶", "綠茶"]
+count = {}
+for drink in orders:
+    if drink in count:
+        count[drink] += 1
+    else:
+        count[drink] = 1
+
+# count = {'珍奶': 3, '綠茶': 2, '紅茶': 1}
+for drink, qty in count.items():
+    print(f"{drink}：{qty} 杯")</pre>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：用 dict 存結構化資料</div>
+        <pre>user = {
+    "name": "Alice",
+    "age": 25,
+    "city": "Taipei",
+    "tags": ["Python", "Data"]
+}
+print(f"{user['name']} 來自 {user['city']}")
+print(f"技能：{', '.join(user['tags'])}")</pre>
+      </div>
+      <div class="section-label">split / join</div>
+      <div class="card">
+        <pre>"2026-04-07".split("-")   # ['2026','04','07']
+"/".join(['2026','04','07'])  # '2026/04/07'
+"  hello world  ".split()    # ['hello','world']</pre>
+      </div>
+      <div class="section-label">in 運算子</div>
+      <div class="card">
+        <pre>"banana" in ["apple","banana"]  # True（list 元素）
+"name" in {"name":"Candy"}      # True（dict key）
+"Python" in "I love Python"     # True（字串片段）</pre>
+      </div>
+      <div class="section-label">tuple & set（認識即可）</div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">tuple</div>
+          <pre>t = (1, 2, 3)  # 不可變
+t = (1,)       # 單元素要加逗號</pre>
+        </div>
+        <div class="card">
+          <div class="card-title">set</div>
+          <pre>s = {1,2,2,3}  # {1,2,3} 自動去重
+list(set(names))  # 去除 list 重複</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- 函式 -->
+    <div id="functions" class="panel">
+      <h2>函式</h2>
+      <div class="section-label">基本語法</div>
+      <div class="card">
+        <pre>def add(x, y):      # 函式名稱用 snake_case
+    return x + y    # 回傳值
+
+result = add(3, 4)  # 呼叫 → 7</pre>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：把重複邏輯包成函式</div>
+        <pre># ❌ 沒用函式：重複寫一樣的邏輯
+area1 = 3.14 * 5 * 5
+area2 = 3.14 * 3 * 3
+area3 = 3.14 * 7 * 7
+
+# ✅ 用函式：寫一次，到處用
+def circle_area(radius):
+    return 3.14 * radius ** 2
+
+area1 = circle_area(5)   # 78.5
+area2 = circle_area(3)   # 28.26
+area3 = circle_area(7)   # 153.86</pre>
+      </div>
+      <div class="section-label">return vs print</div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">return = 真的上菜</div>
+          <pre>def make():
+    return "漢堡"
+food = make()
+print(food)  # 漢堡</pre>
+        </div>
+        <div class="card">
+          <div class="card-title">print = 只印出來</div>
+          <pre>def order():
+    print("點了漢堡")
+x = order()
+print(x)     # None</pre>
+        </div>
+      </div>
+      <div class="tip">return 執行後函式立刻結束，後面的程式碼不會跑</div>
+      <div class="section-label">參數預設值 & 關鍵字引數</div>
+      <div class="card">
+        <pre>def make_drink(name, sugar="正常甜", ice="正常冰"):
+    return f"{name} ({sugar}/{ice})"
+
+make_drink("珍奶")                # 用預設值
+make_drink("珍奶", ice="去冰")    # 關鍵字引數</pre>
+        <div class="note">有預設值的參數必須放在沒預設值的後面</div>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：彈性的問候函式</div>
+        <pre>def greet(name, greeting="你好", punctuation="！"):
+    return f"{greeting}，{name}{punctuation}"
+
+print(greet("Alice"))                       # 你好，Alice！
+print(greet("Bob", greeting="早安"))        # 早安，Bob！
+print(greet("Candy", punctuation="～"))     # 你好，Candy～
+print(greet("David", "晚安", "。"))        # 晚安，David。</pre>
+      </div>
+      <div class="section-label">回傳多個值</div>
+      <div class="card">
+        <pre>def meal_info(name):
+    return name, 800        # 回傳 tuple
+
+meal, cal = meal_info("薯條")  # 解包</pre>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：回傳計算結果與狀態</div>
+        <pre>def divide(a, b):
+    if b == 0:
+        return None, "錯誤：除數不能為 0"
+    return a / b, "成功"
+
+result, msg = divide(10, 2)
+print(msg, result)   # 成功 5.0
+
+result, msg = divide(10, 0)
+print(msg, result)   # 錯誤：除數不能為 0 None</pre>
+      </div>
+      <div class="section-label">作用域 Scope</div>
+      <div class="card">
+        <pre>name = "Global"
+def hello():
+    name = "Local"   # 只在函式內有效
+    print(name)      # Local
+hello()
+print(name)          # Global（不受影響）
+
+# 函式可以讀全域變數，但外面讀不到區域變數
+pi = 3.14
+def area(r): return pi * r * r  # ✅ 可讀 pi</pre>
+      </div>
+    </div>
+
+    <!-- 物件導向 -->
+    <div id="oop" class="panel">
+      <h2>物件導向</h2>
+      <div class="section-label">Class vs Object</div>
+      <div class="two-col">
+        <div class="card"><div class="card-title">Class 類別</div><div class="card-body">藍圖 / 模具（概念）</div></div>
+        <div class="card"><div class="card-title">Object 物件</div><div class="card-body">根據藍圖建出的實體</div></div>
+      </div>
+      <div class="tip">Python 裡所有東西都是物件，連 int、str 也是</div>
+      <div class="section-label">定義與使用</div>
+      <div class="card">
+        <pre>class Drink:                        # PascalCase
+    def __init__(self, name,        # 建構子，自動執行
+                 sugar="正常甜", ice="正常冰"):
+        self.name = name            # 屬性 Attribute
+        self.sugar = sugar
+        self.ice = ice
+
+    def show_label(self):           # 方法 Method
+        print(f"{self.name} ({self.sugar}/{self.ice})")
+
+my = Drink("四季春", ice="去冰")
+print(my.name)    # 屬性（無括號）
+my.show_label()   # 方法（有括號）
+my.ice = "正常冰" # 屬性可直接修改</pre>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：管理多筆訂單</div>
+        <pre>class Drink:
+    def __init__(self, name, sugar="正常甜", ice="正常冰"):
+        self.name = name
+        self.sugar = sugar
+        self.ice = ice
+
+    def label(self):
+        return f"{self.name} / {self.sugar} / {self.ice}"
+
+# 用 list 裝多個物件
+orders = [
+    Drink("珍奶", sugar="半糖", ice="少冰"),
+    Drink("四季春", sugar="無糖", ice="去冰"),
+    Drink("紅茶"),  # 用預設值
+]
+
+for i, drink in enumerate(orders, 1):
+    print(f"第 {i} 杯：{drink.label()}")
+
+# 修改特定訂單
+orders[1].sugar = "微糖"
+print(orders[1].label())  # 四季春 / 微糖 / 去冰</pre>
+      </div>
+      <div class="section-label">self 是什麼？</div>
+      <div class="card card-body">
+        代表「這個物件自己」。Python 呼叫方法時自動把物件傳進去，所以第一個參數固定是 <code>self</code>，呼叫時不需要自己傳。
+      </div>
+      <div class="note" style="margin-top:0.6rem">
+        <code>nums.append(5)</code> 就是在呼叫 list 這個 Class 的 append 方法
+      </div>
+    </div>
+
+    <!-- 錯誤處理 -->
+    <div id="errors" class="panel">
+      <h2>錯誤處理</h2>
+      <div class="section-label">常見錯誤</div>
+      <div class="card">
+        <table>
+          <tr><th>錯誤</th><th>原因</th></tr>
+          <tr><td><code>ValueError</code></td><td>型別轉換失敗，如 int("abc")</td></tr>
+          <tr><td><code>NameError</code></td><td>變數未定義就使用</td></tr>
+          <tr><td><code>IndexError</code></td><td>list index 超出範圍</td></tr>
+          <tr><td><code>KeyError</code></td><td>dict key 不存在</td></tr>
+          <tr><td><code>TypeError</code></td><td>型別不相容，如 "3" + 3</td></tr>
+          <tr><td><code>ZeroDivisionError</code></td><td>除以零</td></tr>
+        </table>
+      </div>
+      <div class="section-label">try / except</div>
+      <div class="card">
+        <pre>try:
+    a = int(input("輸入數字："))
+    print(f"你輸入了：{a}")
+except ValueError:
+    print("這不是數字！")
+except Exception as e:
+    print(f"其他錯誤：{e}")
+finally:
+    print("不管有沒有錯都執行")</pre>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：讓程式不會因錯誤輸入而崩潰</div>
+        <pre>def safe_divide(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        print("錯誤：不能除以 0")
+        return None
+
+print(safe_divide(10, 2))   # 5.0
+# safe_divide(10, 0) 會先印出「錯誤：不能除以 0」，再回傳 None
+print(safe_divide(10, 0))   # None</pre>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：重複要求輸入直到正確</div>
+        <pre>while True:
+    try:
+        age = int(input("請輸入年齡（數字）："))
+        if age < 0 or age > 150:
+            print("年齡範圍不合理，請重新輸入")
+            continue
+        break   # 輸入合法才跳出
+    except ValueError:
+        print("請輸入數字，不要輸入文字！")
+print(f"你的年齡是 {age} 歲")</pre>
+      </div>
+      <div class="section-label">如何正確發問</div>
+      <div class="card">
+        <div class="check"><div class="check-icon ok">✓</div><span>說明你在做什麼（Context）</span></div>
+        <div class="check"><div class="check-icon ok">✓</div><span>貼上完整錯誤訊息 + 程式碼</span></div>
+        <div class="check"><div class="check-icon ok">✓</div><span>說明嘗試過什麼（排除法）</span></div>
+        <div class="check"><div class="check-icon no">✗</div><span>只說「壞掉了」或「沒東西跑出來」</span></div>
+      </div>
+    </div>
+
+    <!-- 模組與專案 -->
+    <div id="modules" class="panel">
+      <h2>模組與專案管理</h2>
+      <div class="section-label">import 語法</div>
+      <div class="card">
+        <pre>import math                    # 整個模組
+import math as m               # 取別名
+from math import sqrt          # 只匯入特定函式
+from math import sqrt, pi      # 多個
+
+print(math.sqrt(16))   # 4.0
+print(m.pi)            # 3.14159...
+print(sqrt(25))        # 5.0</pre>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：random 模組做抽籤</div>
+        <pre>import random
+
+names = ["Alice", "Bob", "Candy", "David"]
+
+# 隨機選一個
+winner = random.choice(names)
+print(f"得獎者：{winner}")
+
+# 打亂順序
+random.shuffle(names)
+print(f"新順序：{names}")
+
+# 隨機整數 1~10
+lucky = random.randint(1, 10)
+print(f"幸運數字：{lucky}")</pre>
+      </div>
+      <div class="card">
+        <div class="card-title">活用範例：datetime 處理日期</div>
+        <pre>from datetime import datetime
+
+now = datetime.now()
+print(f"現在時間：{now.strftime('%Y-%m-%d %H:%M')}")
+
+# 計算距離某天還有幾天
+target = datetime(2026, 12, 31)
+diff = target - now          # timedelta 物件
+print(f"距離年底還有 {diff.days} 天")
+# 注意：若 target 已過去，diff.days 會是負數</pre>
+      </div>
+      <div class="section-label">常用內建模組</div>
+      <div class="card">
+        <div class="row"><span class="row-key">math</span><span class="row-desc">數學運算：sqrt、floor、ceil、pi</span></div>
+        <div class="row"><span class="row-key">random</span><span class="row-desc">隨機：random()、randint()、choice()</span></div>
+        <div class="row"><span class="row-key">os</span><span class="row-desc">作業系統：路徑、目錄操作</span></div>
+        <div class="row"><span class="row-key">sys</span><span class="row-desc">Python 執行環境資訊</span></div>
+        <div class="row"><span class="row-key">datetime</span><span class="row-desc">日期與時間</span></div>
+        <div class="row"><span class="row-key">json</span><span class="row-desc">JSON 讀寫</span></div>
+      </div>
+      <div class="section-label">自訂模組</div>
+      <div class="card">
+        <div class="card-body">把函式放在獨立的 .py 檔，就可以用 import 引入：</div>
+        <pre># utils.py
+def greet(name):
+    return f"Hello, {name}!"
+
+# main.py
+from utils import greet
+print(greet("Ben"))      # Hello, Ben!</pre>
+      </div>
+      <div class="section-label">if __name__ == "__main__"</div>
+      <div class="card">
+        <pre>def main():
+    print("這是主程式")
+
+if __name__ == "__main__":
+    main()</pre>
+        <div class="note">直接執行這個檔案時才跑 main()；被別人 import 時不會自動執行</div>
+      </div>
+      <div class="section-label">uv 專案管理</div>
+      <div class="card">
+        <pre>uv init my_project      # 建立新專案
+cd my_project
+uv add requests         # 安裝第三方套件
+uv run main.py          # 執行程式</pre>
+        <div class="note">uv 會自動管理虛擬環境與 Python 版本，不需要手動建立 venv</div>
+      </div>
+      <div class="section-label">專案結構</div>
+      <div class="card">
+        <pre>my_project/
+├── main.py          # 主程式
+├── utils.py         # 自訂模組
+├── pyproject.toml   # 專案設定（uv 產生）
+└── .venv/           # 虛擬環境（uv 管理）</pre>
+      </div>
+    </div>
+
+    <footer>Python 465期筆記 · 最後更新 2026-04-10</footer>
+  </main>
+</div>
+
+<script>
+// Auth
+(function(){
+  if(sessionStorage.getItem('py465')==='1'){
+    document.getElementById('lock').style.display='none';
+  }
+  window.auth = function(){
+    var v = document.getElementById('pwd-input').value;
+    if(v==='20260310'){
+      sessionStorage.setItem('py465','1');
+      var el = document.getElementById('lock');
+      el.style.transition='opacity 0.25s';
+      el.style.opacity='0';
+      setTimeout(()=>el.style.display='none', 250);
+    } else {
+      document.getElementById('pwd-err').textContent='密碼錯誤，請再試一次';
+      document.getElementById('pwd-input').value='';
+      document.getElementById('pwd-input').focus();
+    }
+  };
+})();
+
+// Nav
+function show(id, btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  // close sidebar on mobile
+  if(window.innerWidth<=680) document.getElementById('sidebar').classList.remove('open');
+}
+
+// Mobile sidebar
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+}
+</script>
+</body>
+</html>
