@@ -60,6 +60,13 @@
     transition: color 0.2s, border-color 0.2s;
     white-space: nowrap; flex-shrink: 0;
   }
+  @media (max-width: 480px) {
+    nav a {
+      font-size: 0.9rem;
+      padding: 0 14px;
+      letter-spacing: 0.02em;
+    }
+  }
   nav a:hover, nav a.active { color: var(--ocean); border-bottom-color: var(--ocean); }
 
   /* ============ COVER ============ */
@@ -259,6 +266,10 @@
     display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
   }
   @media (max-width: 900px) { .train-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 480px) {
+    .train-card { padding: 18px 16px; }
+    .booked-list .seat { width: 38px; height: 38px; font-size: 0.85rem; }
+  }
   .train-card {
     background: linear-gradient(135deg, var(--ocean-deep) 0%, var(--ocean) 100%);
     color: white;
@@ -343,6 +354,9 @@
   }
   @media (max-width: 720px) {
     .seatmap-body.two-col { grid-template-columns: 1fr; }
+    .seatmap-head { flex-direction: column; align-items: flex-start; }
+    .seatmap-tabs { width: 100%; overflow-x: auto; }
+    .carriage { max-width: 100%; }
   }
   .seatmap-col-head {
     text-align: center;
