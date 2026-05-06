@@ -1,1 +1,15 @@
-
+json{
+  "name": "台東知本小旅行",
+  "short_name": "台東知本",
+  "start_url": "/taitung2026/",
+  "display": "standalone",
+  "background_color": "#1a2a3a",
+  "theme_color": "#2e7d9f",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
